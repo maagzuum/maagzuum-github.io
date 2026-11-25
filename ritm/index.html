@@ -1,0 +1,1082 @@
+<!doctype html>
+<html lang="ru" data-theme="night">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ритм — тренажёр слепой печати</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --f0:#e5737a;--f1:#e8a35b;--f2:#d9c95a;--f3:#7cc57a;--f4:#5bc0b0;--f5:#6aa4e8;--f6:#9b86e8;--f7:#d97fc5;--f8:#8a8f98;
+  --radius:12px; --fs:30px; --caret-t:85ms;
+  --mono:'JetBrains Mono',ui-monospace,Consolas,monospace;
+  --sans:'Manrope',system-ui,-apple-system,Segoe UI,sans-serif;
+}
+[data-theme=night]{--bg:#14161b;--surface:#1b1e25;--surface2:#242832;--line:#2c313c;--text:#ebe7e1;--sub:#5f6673;--sub2:#8b93a1;--accent:#f5b84a;--accent-ink:#1a1405;--error:#f0606f;--good:#7fd18b}
+[data-theme=paper]{--bg:#f4f1ea;--surface:#ebe6da;--surface2:#e0d9ca;--line:#d6cdbb;--text:#2a2620;--sub:#a99f8d;--sub2:#776e5f;--accent:#c2552d;--accent-ink:#fff;--error:#d1343e;--good:#3d8a4a}
+[data-theme=ocean]{--bg:#0e1c2b;--surface:#142739;--surface2:#1b3349;--line:#23405a;--text:#dbe9f5;--sub:#4d6a86;--sub2:#88a5c0;--accent:#4fd1c5;--accent-ink:#04211e;--error:#ff6b81;--good:#7fe0a0}
+[data-theme=forest]{--bg:#141a15;--surface:#1b231c;--surface2:#232e24;--line:#2d3a2e;--text:#e3eadb;--sub:#5b6c5a;--sub2:#93a490;--accent:#a3d36f;--accent-ink:#142006;--error:#ec7560;--good:#a3d36f}
+[data-theme=sakura]{--bg:#fbf0f2;--surface:#f5e2e7;--surface2:#efd3db;--line:#e6c3cd;--text:#4a2f3a;--sub:#c49eab;--sub2:#8f6674;--accent:#d9577f;--accent-ink:#fff;--error:#c22f4a;--good:#3f8f5f}
+[data-theme=terminal]{--bg:#090c09;--surface:#101610;--surface2:#172017;--line:#1f2b1f;--text:#b8f5b0;--sub:#3c5a39;--sub2:#6f9b6a;--accent:#39ff6a;--accent-ink:#021006;--error:#ff4a4a;--good:#39ff6a}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);-webkit-font-smoothing:antialiased}
+body{min-height:100vh;display:flex;flex-direction:column;transition:background .25s,color .25s}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;padding:0}
+kbd{font-family:var(--mono);font-size:.78em;background:var(--surface2);border-radius:5px;padding:2px 6px;color:var(--sub2)}
+.fade{transition:opacity .3s}
+body.typing .fade{opacity:0;pointer-events:none}
+
+/* header */
+.top{display:flex;align-items:center;gap:24px;max-width:1100px;width:100%;margin:0 auto;padding:22px 24px 8px}
+.logo{font-weight:800;font-size:22px;letter-spacing:-.02em;display:flex;align-items:center;gap:8px;user-select:none}
+.logo i{display:inline-block;width:10px;height:22px;border-radius:3px;background:var(--accent);animation:blink 1.1s ease-in-out infinite}
+.nav{display:flex;gap:4px}
+.nav button{padding:8px 14px;border-radius:10px;color:var(--sub2);font-weight:600;font-size:14px;transition:.15s}
+.nav button:hover{color:var(--text);background:var(--surface)}
+.nav button.active{color:var(--text);background:var(--surface2)}
+.top-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.chip{display:flex;align-items:center;gap:6px;background:var(--surface);border-radius:999px;padding:6px 12px;font-size:13px;color:var(--sub2);font-weight:600}
+.chip b{color:var(--text)}
+.ring{width:18px;height:18px;transform:rotate(-90deg)}
+.ring circle{fill:none;stroke-width:3.5}
+.ring .bgc{stroke:var(--surface2)} .ring .fgc{stroke:var(--accent);stroke-linecap:round;transition:stroke-dashoffset .5s}
+.icon-btn{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;color:var(--sub2);transition:.15s}
+.icon-btn:hover{background:var(--surface);color:var(--text)}
+
+main{flex:1;width:100%;max-width:1100px;margin:0 auto;padding:8px 24px 24px}
+.view[hidden]{display:none!important}
+
+/* config bar */
+.config{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:6px;background:var(--surface);border-radius:var(--radius);padding:6px 8px;margin:10px auto 0;width:max-content;max-width:100%}
+.seg{display:flex;gap:2px;align-items:center}
+.seg button,.pill{padding:6px 10px;border-radius:8px;font-size:13px;font-weight:600;color:var(--sub2);transition:color .15s,background .15s;white-space:nowrap}
+.seg button:hover,.pill:hover{color:var(--text)}
+.seg button.active{color:var(--accent)}
+.sep{width:1px;height:18px;background:var(--line);margin:0 4px}
+
+/* course letters */
+.course{margin:18px auto 0;display:flex;flex-direction:column;align-items:center;gap:8px}
+.letters{display:flex;flex-wrap:wrap;justify-content:center;gap:3px}
+.lt{position:relative;width:26px;height:32px;border-radius:7px;display:grid;place-items:center;font-family:var(--mono);font-size:14px;font-weight:700;color:var(--sub);text-transform:uppercase;background:transparent;overflow:hidden}
+.lt.on{color:var(--text);background:var(--surface)}
+.lt.on::after{content:"";position:absolute;left:0;bottom:0;height:3px;width:var(--p,0%);background:var(--lc,var(--sub2))}
+.lt.focus{outline:2px solid var(--accent);outline-offset:-2px;color:var(--accent)}
+.course-info{font-size:13px;color:var(--sub2);display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
+.course-info b{color:var(--text);font-family:var(--mono)}
+
+/* live stats */
+.live{display:flex;justify-content:center;gap:34px;margin:26px 0 6px;font-family:var(--mono);min-height:44px}
+.lv{display:flex;flex-direction:column;align-items:center;line-height:1.1}
+.lv span{font-size:28px;font-weight:700;color:var(--accent);transition:color .2s}
+.lv small{font-family:var(--sans);font-size:11px;color:var(--sub);text-transform:uppercase;letter-spacing:.08em;margin-top:4px}
+.live.idle span{color:var(--sub)}
+
+/* typing area */
+.test{position:relative;margin-top:16px}
+.wrap{position:relative;overflow:hidden;cursor:text;outline:none}
+.words{position:relative;font-family:var(--mono);font-size:var(--fs);line-height:1.65;color:var(--sub);transition:transform .18s ease;will-change:transform;user-select:none}
+.word{display:inline-block;white-space:pre}
+.ch{transition:color .06s}
+.ch.ok{color:var(--text)}
+.ch.err{color:var(--error);background:color-mix(in srgb,var(--error) 14%,transparent);border-radius:3px}
+.ch.sp.err{background:color-mix(in srgb,var(--error) 35%,transparent)}
+.ch.fix{color:var(--text);text-decoration:underline wavy color-mix(in srgb,var(--error) 55%,transparent);text-underline-offset:6px;text-decoration-thickness:1px}
+.ch.bump{animation:bump .22s}
+@keyframes bump{0%,100%{transform:none}25%{color:var(--error)}50%{color:var(--error)}}
+.ch.sp.ok::before,.ch.sp::before{content:""}
+.caret{position:absolute;left:0;top:0;width:3px;border-radius:2px;background:var(--accent);pointer-events:none;transition:transform var(--caret-t) ease-out,width var(--caret-t);z-index:1}
+.caret.blink{animation:blink 1.05s ease-in-out infinite}
+.caret.block{opacity:.32;border-radius:4px}
+.caret.block.blink{animation:blinkb 1.05s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+@keyframes blinkb{0%,100%{opacity:.32}50%{opacity:.05}}
+.progress{height:3px;background:var(--surface);border-radius:3px;margin-top:20px;overflow:hidden}
+.progress i{display:block;height:100%;width:0;background:var(--accent);transition:width .25s linear}
+.start-hint{text-align:center;font-size:13px;color:var(--sub);margin-top:10px;transition:opacity .2s}
+.test.started .start-hint{opacity:0}
+
+.actions{display:flex;justify-content:center;gap:8px;margin-top:22px}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 16px;border-radius:10px;background:var(--surface);color:var(--sub2);font-weight:600;font-size:14px;transition:.15s}
+.btn:hover{color:var(--text);background:var(--surface2)}
+.btn.primary{background:var(--accent);color:var(--accent-ink)}
+.btn.primary:hover{filter:brightness(1.08);background:var(--accent);color:var(--accent-ink)}
+.btn svg{width:16px;height:16px}
+
+/* keyboard */
+.kb-wrap{margin:34px auto 0;display:flex;align-items:flex-end;justify-content:center;gap:16px}
+.hand{width:150px;height:200px;flex:none;overflow:visible}
+.hand .fg,.hand .palm{fill:var(--surface2);stroke:var(--sub);stroke-opacity:.55;stroke-width:1.6;transition:fill .15s,stroke .15s}
+.hand .palm{fill:var(--surface2)}
+.hand .fg.on{stroke-opacity:1}
+.hand .fg.on{fill:var(--fc);stroke:var(--fc);filter:drop-shadow(0 0 7px var(--fc));animation:fpulse 1.1s ease-in-out infinite}
+@keyframes fpulse{50%{opacity:.72}}
+.kb{display:flex;flex-direction:column;gap:5px;padding:12px;background:var(--surface);border-radius:16px;user-select:none}
+.kr{display:flex;gap:5px}
+.key{--w:1;position:relative;width:calc(var(--w)*40px + (var(--w) - 1)*5px);height:40px;border-radius:8px;background:var(--surface2);display:grid;place-items:center;font-family:var(--mono);font-size:13px;color:var(--sub2);border-bottom:3px solid color-mix(in srgb,var(--fc,var(--line)) 55%,transparent);transition:background .12s,transform .08s,color .12s}
+.key.mod{font-family:var(--sans);font-size:11px;color:var(--sub);border-bottom-color:var(--line)}
+.key.home::after{content:"";position:absolute;bottom:6px;width:10px;height:2px;border-radius:2px;background:var(--sub2)}
+.key.next{background:color-mix(in srgb,var(--fc,var(--accent)) 75%,var(--surface2));color:#111;font-weight:700}
+.key.press{transform:translateY(2px);background:color-mix(in srgb,var(--accent) 35%,var(--surface2))}
+.key.perr{background:color-mix(in srgb,var(--error) 55%,var(--surface2));color:#fff}
+.kb.heat .key{border-bottom-color:transparent}
+
+.hints{text-align:center;color:var(--sub);font-size:12.5px;margin-top:26px;display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+
+/* results */
+.results{animation:rise .35s ease}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.res-top{display:grid;grid-template-columns:180px 1fr;gap:24px;align-items:stretch;margin-top:20px}
+.res-big{display:flex;flex-direction:column;gap:18px;justify-content:center}
+.big .lbl{font-size:13px;color:var(--sub2);font-weight:600}
+.big .val{font-family:var(--mono);font-size:56px;line-height:1;font-weight:700;color:var(--accent)}
+.badge{display:inline-flex;align-self:flex-start;gap:6px;background:color-mix(in srgb,var(--accent) 18%,transparent);color:var(--accent);padding:5px 10px;border-radius:999px;font-size:12px;font-weight:700}
+.chart-box{background:var(--surface);border-radius:var(--radius);padding:12px;position:relative;min-height:220px}
+.chart-box canvas{width:100%;height:220px;display:block}
+.legend{position:absolute;top:12px;right:16px;display:flex;gap:14px;font-size:11px;color:var(--sub2)}
+.legend i{display:inline-block;width:10px;height:3px;border-radius:2px;margin-right:5px;vertical-align:middle}
+.res-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-top:14px}
+.cell{background:var(--surface);border-radius:var(--radius);padding:12px 14px}
+.cell small{display:block;font-size:11.5px;color:var(--sub);font-weight:600;margin-bottom:4px}
+.cell b{font-family:var(--mono);font-size:20px}
+.res-keys{margin-top:14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:13px;color:var(--sub2)}
+.kchip{font-family:var(--mono);background:var(--surface);border-radius:8px;padding:5px 9px;color:var(--text)}
+.kchip em{font-style:normal;color:var(--error);margin-left:6px;font-size:.85em}
+.res-actions{display:flex;justify-content:center;gap:8px;margin-top:22px;flex-wrap:wrap}
+
+/* stats */
+.stats h2{font-size:22px;margin:22px 0 14px;letter-spacing:-.01em}
+.stats h3{font-size:15px;margin:26px 0 10px;color:var(--sub2);font-weight:700}
+.cards{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
+.card{background:var(--surface);border-radius:var(--radius);padding:14px}
+.card small{display:block;font-size:12px;color:var(--sub);font-weight:600;margin-bottom:6px}
+.card b{font-family:var(--mono);font-size:24px}
+.goalbar{height:8px;border-radius:8px;background:var(--surface2);overflow:hidden;margin-top:10px}
+.goalbar i{display:block;height:100%;background:var(--accent);border-radius:8px;transition:width .5s}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;color:var(--sub);font-weight:600;padding:8px 10px;border-bottom:1px solid var(--line)}
+td{padding:8px 10px;border-bottom:1px solid color-mix(in srgb,var(--line) 50%,transparent);font-family:var(--mono)}
+td:first-child{font-family:var(--sans);color:var(--sub2)}
+.weak-list{display:flex;flex-wrap:wrap;gap:8px}
+.empty{color:var(--sub);font-size:14px;padding:30px;text-align:center;background:var(--surface);border-radius:var(--radius)}
+
+/* overlay */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);backdrop-filter:blur(3px);display:flex;justify-content:flex-end;z-index:50;animation:fadein .2s}
+.overlay.center{justify-content:center;align-items:center}
+.overlay[hidden]{display:none}
+@keyframes fadein{from{opacity:0}}
+.drawer{width:min(420px,100%);height:100%;background:var(--bg);padding:24px;overflow:auto;animation:slide .25s ease}
+@keyframes slide{from{transform:translateX(30px);opacity:0}}
+.drawer h2,.modal h2{margin:0 0 18px;font-size:20px;display:flex;justify-content:space-between;align-items:center}
+.row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+.row label{font-size:14px;font-weight:600}
+.row p{margin:2px 0 0;font-size:12px;color:var(--sub)}
+.row .seg{background:var(--surface);border-radius:9px;padding:3px;flex-wrap:wrap;justify-content:flex-end}
+.row .seg button.active{background:var(--surface2);color:var(--accent)}
+.swatches{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:12px 0;border-bottom:1px solid var(--line)}
+.sw{border-radius:10px;padding:10px;font-size:12px;font-weight:700;text-align:left;border:2px solid transparent}
+.sw.active{border-color:var(--accent)}
+.sw span{display:flex;gap:4px;margin-top:6px}
+.sw span i{width:12px;height:12px;border-radius:50%}
+.switch{width:40px;height:22px;border-radius:22px;background:var(--surface2);position:relative;transition:.2s;flex:none}
+.switch::after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:var(--sub2);transition:.2s}
+.switch.active{background:var(--accent)}
+.switch.active::after{left:21px;background:var(--accent-ink)}
+.modal{background:var(--bg);border-radius:16px;padding:24px;width:min(640px,94vw)}
+.modal textarea{width:100%;min-height:200px;background:var(--surface);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:12px;font-family:var(--mono);font-size:14px;resize:vertical;outline:none}
+.modal textarea:focus{border-color:var(--accent)}
+.modal .note{font-size:12px;color:var(--sub);margin:8px 0 16px}
+
+.toast{position:fixed;left:50%;bottom:28px;transform:translate(-50%,20px);background:var(--surface2);color:var(--text);padding:10px 16px;border-radius:10px;font-size:14px;font-weight:600;opacity:0;pointer-events:none;transition:.25s;z-index:60;box-shadow:0 8px 30px rgba(0,0,0,.25)}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.toast.warn{background:var(--error);color:#fff}
+#hid{position:fixed;left:-9999px;top:0;opacity:0;width:1px;height:1px}
+footer{text-align:center;color:var(--sub);font-size:12px;padding:16px}
+
+@media (max-width:860px){
+  .res-grid,.cards{grid-template-columns:repeat(3,1fr)}
+  .res-top{grid-template-columns:1fr}
+  .res-big{flex-direction:row;flex-wrap:wrap}
+  .two{grid-template-columns:1fr}
+  .key{width:calc(var(--w)*26px + (var(--w) - 1)*4px);height:32px;font-size:11px}
+  .kr,.kb{gap:4px}
+  .hand{width:78px;height:105px}
+  .kb-wrap{gap:8px}
+}
+@media (max-width:600px){
+  .top{gap:10px;padding:14px 16px 4px;flex-wrap:wrap}
+  .chip.goal{display:none}
+  main{padding:8px 16px 20px}
+  :root{--fs:22px}
+  .live{gap:18px}.lv span{font-size:22px}
+  .kb-wrap{display:none}
+  .res-grid,.cards{grid-template-columns:repeat(2,1fr)}
+  .big .val{font-size:42px}
+}
+</style>
+</head>
+<body>
+<header class="top fade">
+  <div class="logo"><i></i>ритм</div>
+  <nav class="nav">
+    <button data-view="practice" class="active">Тренировка</button>
+    <button data-view="stats">Статистика</button>
+  </nav>
+  <div class="top-right">
+    <div class="chip" title="Дней подряд с тренировкой">🔥 <b id="streakVal">0</b></div>
+    <div class="chip goal" title="Цель на сегодня">
+      <svg class="ring" viewBox="0 0 20 20"><circle class="bgc" cx="10" cy="10" r="7.5"/><circle class="fgc" id="goalRing" cx="10" cy="10" r="7.5" stroke-dasharray="47.12" stroke-dashoffset="47.12"/></svg>
+      <span id="goalVal">0 / 10 мин</span>
+    </div>
+    <button class="icon-btn" id="openSettings" title="Настройки">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    </button>
+  </div>
+</header>
+
+<main>
+  <!-- PRACTICE -->
+  <section id="view-practice" class="view">
+    <div class="config fade">
+      <div class="seg">
+        <button data-set="lang" data-val="ru">RU</button>
+        <button data-set="lang" data-val="en">EN</button>
+      </div>
+      <div class="sep"></div>
+      <div class="seg">
+        <button data-set="mode" data-val="course">курс</button>
+        <button data-set="mode" data-val="time">время</button>
+        <button data-set="mode" data-val="words">слова</button>
+        <button data-set="mode" data-val="text">текст</button>
+        <button data-set="mode" data-val="weak">слабые клавиши</button>
+        <button data-set="mode" data-val="custom">свой текст</button>
+      </div>
+      <div class="sep" data-show="time words weak"></div>
+      <div class="seg" data-show="time words weak">
+        <button data-toggle="punct" title="Знаки препинания и заглавные">@ пунктуация</button>
+        <button data-toggle="nums" title="Цифры">#&nbsp;цифры</button>
+      </div>
+      <div class="sep" data-show="time words course custom"></div>
+      <div class="seg" data-show="time">
+        <button data-set="time" data-val="15">15</button><button data-set="time" data-val="30">30</button><button data-set="time" data-val="60">60</button><button data-set="time" data-val="120">120</button>
+      </div>
+      <div class="seg" data-show="words">
+        <button data-set="words" data-val="10">10</button><button data-set="words" data-val="25">25</button><button data-set="words" data-val="50">50</button><button data-set="words" data-val="100">100</button>
+      </div>
+      <div class="seg" data-show="course">
+        <span class="pill" style="cursor:default;color:var(--sub)">цель</span>
+        <button data-set="target" data-val="20">20</button><button data-set="target" data-val="30">30</button><button data-set="target" data-val="40">40</button><button data-set="target" data-val="50">50</button>
+        <span class="pill" style="cursor:default;color:var(--sub)">сл/мин</span>
+      </div>
+      <div class="seg" data-show="custom"><button id="editCustom">✎ изменить текст</button></div>
+    </div>
+
+    <div class="course fade" id="course" hidden>
+      <div class="letters" id="letters"></div>
+      <div class="course-info" id="courseInfo"></div>
+    </div>
+
+    <div class="live idle" id="live">
+      <div class="lv"><span id="lvTime">0</span><small id="lvTimeLbl">сек</small></div>
+      <div class="lv"><span id="lvSpeed">—</span><small id="lvSpeedLbl">зн/мин</small></div>
+      <div class="lv"><span id="lvAcc">—</span><small>точность</small></div>
+      <div class="lv"><span id="lvErr">0</span><small>ошибки</small></div>
+    </div>
+
+    <div id="testBox">
+      <section class="test" id="test">
+        <div class="wrap" id="wrap"><div class="words" id="words"><div class="caret" id="caret"></div><div id="txt"></div></div></div>
+        <div class="progress"><i id="progressBar"></i></div>
+        <div class="start-hint">начните печатать — таймер запустится сам</div>
+      </section>
+      <div class="actions fade">
+        <button class="btn" id="restartBtn" title="Tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>новый текст</button>
+        <button class="btn" id="repeatBtn" title="Esc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M17 2l4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></svg>повторить</button>
+      </div>
+      <div class="kb-wrap" id="kbWrap">
+        <div id="handL"></div>
+        <div class="kb" id="kb"></div>
+        <div id="handR"></div>
+      </div>
+    </div>
+
+    <section class="results" id="results" hidden>
+      <div class="res-top">
+        <div class="res-big">
+          <div class="big"><div class="lbl" id="rsUnit">зн/мин</div><div class="val" id="rsSpeed">0</div></div>
+          <div class="big"><div class="lbl">точность</div><div class="val" id="rsAcc">0%</div></div>
+          <div class="badge" id="rsBadge" hidden>★ новый рекорд</div>
+        </div>
+        <div class="chart-box">
+          <div class="legend"><span><i style="background:var(--accent)"></i>скорость</span><span><i style="background:var(--sub2)"></i>по секундам</span><span><i style="background:var(--error);height:8px;width:8px;border-radius:50%"></i>ошибки</span></div>
+          <canvas id="rsChart"></canvas>
+        </div>
+      </div>
+      <div class="res-grid">
+        <div class="cell"><small>без учёта ошибок</small><b id="rsRaw">0</b></div>
+        <div class="cell"><small>символов</small><b id="rsChars">0</b></div>
+        <div class="cell"><small>ошибок</small><b id="rsErr">0</b></div>
+        <div class="cell"><small>время</small><b id="rsTime">0с</b></div>
+        <div class="cell"><small>стабильность</small><b id="rsCons">—</b></div>
+        <div class="cell"><small>режим</small><b id="rsMode" style="font-size:15px">—</b></div>
+      </div>
+      <div class="res-keys" id="rsKeys"></div>
+      <div class="res-actions">
+        <button class="btn primary" id="nextBtn">дальше <kbd style="background:rgba(0,0,0,.15);color:inherit">Enter</kbd></button>
+        <button class="btn" id="againBtn">повторить текст <kbd>Esc</kbd></button>
+        <button class="btn" id="trainWeakBtn">тренировать ошибки</button>
+      </div>
+    </section>
+
+    <div class="hints fade"><span><kbd>Tab</kbd> новый текст</span><span><kbd>Esc</kbd> повторить</span><span><kbd>Ctrl</kbd>+<kbd>⌫</kbd> стереть слово</span></div>
+    <input id="hid" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
+  </section>
+
+  <!-- STATS -->
+  <section id="view-stats" class="view stats" hidden>
+    <h2>Статистика</h2>
+    <div class="cards">
+      <div class="card"><small>тестов</small><b id="stTests">0</b></div>
+      <div class="card"><small>время за клавиатурой</small><b id="stTime">0</b></div>
+      <div class="card"><small id="stBestLbl">рекорд</small><b id="stBest">0</b></div>
+      <div class="card"><small id="stAvgLbl">средняя (10 посл.)</small><b id="stAvg">0</b></div>
+      <div class="card"><small>средняя точность</small><b id="stAcc">0%</b></div>
+      <div class="card"><small>серия дней</small><b id="stStreak">0</b></div>
+    </div>
+    <div class="card" style="margin-top:10px">
+      <small>цель на сегодня</small><b id="stGoal" style="font-size:18px">0 / 10 мин</b>
+      <div class="goalbar"><i id="stGoalBar" style="width:0"></i></div>
+    </div>
+    <h3>Прогресс скорости</h3>
+    <div class="chart-box"><div class="legend"><span><i style="background:var(--sub2)"></i>тест</span><span><i style="background:var(--accent)"></i>среднее за 10</span></div><canvas id="stChart"></canvas></div>
+    <div class="two">
+      <div>
+        <h3>Карта ошибок <span style="font-weight:500;color:var(--sub)">— чем краснее, тем чаще промахи</span></h3>
+        <div class="kb heat" id="heatKb"></div>
+      </div>
+      <div>
+        <h3>Самые трудные клавиши</h3>
+        <div class="weak-list" id="weakList"></div>
+        <div style="margin-top:14px"><button class="btn primary" id="goWeak">тренировать слабые клавиши</button></div>
+      </div>
+    </div>
+    <h3>Последние тесты</h3>
+    <div id="histTable"></div>
+    <div style="margin-top:24px;display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn" id="exportBtn">экспорт в JSON</button>
+      <button class="btn" id="resetBtn" style="color:var(--error)">сбросить статистику</button>
+    </div>
+  </section>
+</main>
+<footer class="fade">ритм · данные хранятся только в вашем браузере</footer>
+
+<!-- SETTINGS -->
+<div class="overlay" id="settings" hidden>
+  <div class="drawer">
+    <h2>Настройки <button class="icon-btn" data-close>✕</button></h2>
+    <div class="swatches" id="swatches"></div>
+    <div class="row"><div><label>Единицы скорости</label><p>знаков или слов в минуту</p></div>
+      <div class="seg"><button data-set="unit" data-val="cpm">зн/мин</button><button data-set="unit" data-val="wpm">сл/мин</button></div></div>
+    <div class="row"><div><label>Звук клавиш</label></div>
+      <div class="seg"><button data-set="sound" data-val="off">выкл</button><button data-set="sound" data-val="click">щелчок</button><button data-set="sound" data-val="soft">мягкий</button><button data-set="sound" data-val="typewriter">машинка</button></div></div>
+    <div class="row"><div><label>Каретка</label></div>
+      <div class="seg"><button data-set="caret" data-val="line">линия</button><button data-set="caret" data-val="block">блок</button><button data-set="caret" data-val="under">подчёрк</button></div></div>
+    <div class="row"><div><label>Размер текста</label></div>
+      <div class="seg"><button data-set="fontSize" data-val="22">S</button><button data-set="fontSize" data-val="28">M</button><button data-set="fontSize" data-val="34">L</button><button data-set="fontSize" data-val="42">XL</button></div></div>
+    <div class="row"><div><label>Плавная каретка</label></div><button class="switch" data-toggle="smooth"></button></div>
+    <div class="row"><div><label>Виртуальная клавиатура</label><p>подсветка следующей клавиши и пальца</p></div><button class="switch" data-toggle="keyboard"></button></div>
+    <div class="row"><div><label>Остановка на ошибке</label><p>нельзя идти дальше, пока не нажмёте верную клавишу</p></div><button class="switch" data-toggle="stopOnError"></button></div>
+    <div class="row"><div><label>«ё» можно печатать как «е»</label></div><button class="switch" data-toggle="yo"></button></div>
+    <div class="row"><div><label>Режим фокуса</label><p>прятать интерфейс во время печати</p></div><button class="switch" data-toggle="focus"></button></div>
+    <div class="row"><div><label>Цель в день</label><p>минут практики</p></div>
+      <div class="seg"><button data-set="goal" data-val="5">5</button><button data-set="goal" data-val="10">10</button><button data-set="goal" data-val="20">20</button><button data-set="goal" data-val="30">30</button></div></div>
+  </div>
+</div>
+
+<!-- CUSTOM TEXT -->
+<div class="overlay center" id="customModal" hidden>
+  <div class="modal">
+    <h2>Свой текст <button class="icon-btn" data-close>✕</button></h2>
+    <textarea id="customText" placeholder="Вставьте любой текст: статью, код, стихи…"></textarea>
+    <div class="note">Кавычки «ёлочки», длинные тире и многоточия будут заменены на символы, которые есть на клавиатуре. Переносы строк станут пробелами.</div>
+    <div style="display:flex;gap:8px;justify-content:flex-end"><button class="btn" data-close>отмена</button><button class="btn primary" id="saveCustom">печатать</button></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(() => {
+'use strict';
+/* ---------- data ---------- */
+const WORDS = {
+ru: [...new Set(`и в не на я быть он с что а по это она этот к но они мы как из у который то за свой весь год от так о для ты же все тот мочь вы человек такой его сказать только или еще бы себя один уже до время если сам когда другой вот говорить наш мой знать стать при чтобы дело жизнь кто первый очень два день ее новый рука даже во со раз где там под можно ну какой после их работа без самый потом надо хотеть ли слово идти большой должен место иметь ничто сейчас тут лицо каждый друг нет теперь ни глаз тоже тогда видеть вопрос через да здесь дом потому сторона думать сделать страна жить чем мир об последний случай голова более делать смотреть ребенок просто конечно сила конец перед несколько вид система всегда работать между три деньги город проблема над почему земля машина решить хорошо книга вода окно утро вечер ночь солнце дорога море лес река небо ветер звезда школа учитель ученик урок задача ответ история музыка песня цвет белый черный красный зеленый синий быстро медленно тихо громко легко трудно сегодня завтра вчера иногда снова почти вместе далеко близко рядом начало способ пример минута секунда неделя месяц семья мама папа брат сестра сын дочь кошка собака птица рыба хлеб молоко чай кофе сахар яблоко клавиша пальцы скорость точность текст строка буква знак экран память мысль голос взгляд сердце улица комната дверь стол стул окно свет тень огонь снег дождь лето зима весна осень поле гора берег остров корабль поезд самолет билет письмо газета журнал картина театр кино игра спорт бег прыжок плавание здоровье врач больница аптека магазин рынок цена товар покупка подарок праздник гость встреча разговор шутка смех улыбка радость надежда мечта цель план успех победа ошибка опыт знание наука искусство природа животное растение цветок трава дерево ветка корень плод семя зерно мука каша суп мясо сыр масло соль перец`.split(/\s+/))],
+en: [...new Set(`the be to of and a in that have it for not on with he as you do at this but his by from they we say her she or an will my one all would there their what so up out if about who get which go me when make can like time no just him know take people into year your good some could them see other than then now look only come its over think also back after use two how our work first well way even new want because any these give day most us is was are been has had were said did find long down made may part water place world house school sound light hand high small large again home read move right line boy old too mean same tell follow show around form three under name very through great where help much before turn cause differ thing every near add food between own below country plant last keep tree never start city earth eye thought head story saw far sea draw left late run while press close night real life few north open seem together next white children begin got walk example ease paper group always music those both mark often letter until mile river car feet care second book carry took science eat room friend began idea fish mountain stop once base hear horse cut sure watch color face wood main enough plain girl usual young ready above ever red list though feel talk bird soon body dog family direct leave song measure door product black short class wind question happen complete ship area half rock order fire south problem piece told knew pass since top whole king space heard best hour better true during hundred five remember step early hold west ground interest reach fast sing listen six table travel less morning ten simple several toward war lay against pattern slow center love person money serve appear road map rain rule pull cold notice voice unit power town fine certain fly fall lead cry dark machine note wait plan figure star box field rest correct able done beauty drive stood contain front teach week final gave green quick develop ocean warm free minute strong special mind behind clear tail produce fact street inch nothing course stay wheel full force blue object decide surface deep moon island foot system busy test record boat common gold possible plane dry wonder laugh thousand ago ran check game shape hot miss brought heat snow bring yes distant fill east paint language among keyboard finger quiet rhythm practice speed`.split(/\s+/))]
+};
+const TEXTS = {
+ru: [
+`Утро начинается с тишины. Чайник медленно закипает, за окном просыпается город, а на столе ждёт чистый лист бумаги. Самое трудное - сделать первый шаг, дальше всё пойдёт само.`,
+`Скорость печати растёт не от спешки, а от спокойствия. Смотрите на экран, а не на клавиши, держите пальцы на основном ряду и позвольте рукам запомнить дорогу к каждой букве.`,
+`Осенний лес шумел под ветром. Листья кружились над тропинкой, падали в лужи и плыли, словно маленькие лодки. Где-то вдалеке стучал дятел, и этот звук казался единственными часами в мире.`,
+`Каждый большой проект состоит из маленьких шагов. Если разбить задачу на части и делать по одной каждый день, то через месяц вы удивитесь, как далеко удалось уйти.`,
+`Поезд отправлялся в семь утра. На перроне пахло кофе и мокрым асфальтом, проводники проверяли билеты, а дети прижимались носами к холодным окнам, ожидая начала путешествия.`,
+`Хорошая книга похожа на разговор с умным другом. Она не торопит, не перебивает и всегда готова продолжить беседу с того места, где вы остановились вчера вечером.`,
+`Море было спокойным, и только у самого берега волны лениво перекатывали гальку. Рыбаки чинили сети, чайки спорили из-за хлеба, а солнце поднималось всё выше.`,
+`Чтобы научиться чему-то новому, нужно разрешить себе ошибаться. Ошибка - это не провал, а подсказка: она показывает, куда стоит направить внимание в следующий раз.`,
+`В старом доме на краю деревни жил часовщик. Он чинил будильники, карманные часы и даже башенные куранты, а по вечерам играл на скрипке для соседских кошек.`,
+`Программист открыл ноутбук, налил себе чаю и посмотрел на список задач. Двенадцать пунктов, три срочных, один непонятный. Он улыбнулся: обычный вторник.`
+],
+en: [
+`The best way to learn to type faster is to slow down first. Accuracy builds the habit, and speed follows naturally once your fingers know where every key lives.`,
+`A small cafe on the corner opened at six every morning. The owner baked bread before sunrise, and by the time the city woke up, the whole street smelled of warm crust and coffee.`,
+`Rain tapped against the window while the old clock in the hallway counted the hours. Nobody was in a hurry tonight; the books were open, and the kettle was already singing.`,
+`Every expert was once a beginner who refused to quit. Practice a little every day, measure your progress, and celebrate the moments when something hard suddenly feels easy.`,
+`The train left the station just as the sun touched the hills. Fields of wheat rolled past the windows, and for a while the only sound was the steady rhythm of the wheels.`,
+`Good code reads like a clear story. Names explain intent, functions do one thing well, and the next person who opens the file understands it without needing to ask questions.`,
+`On the edge of the forest stood a tiny observatory. Every clear night, a retired teacher climbed its stairs to count the stars and write their names in a worn leather notebook.`,
+`Typing is a quiet skill, but it shapes how quickly ideas leave your head and land on the page. The smoother the hands, the more freely the thoughts can flow.`
+]};
+const ORDER = { ru: [...'оеаинтсрвлкмдпуяыьгзбчйхжшюцщэфъё'], en: [...'enitrlsauodychgmpbkvwfzxqj'] };
+const VOWELS = { ru: 'аеёиоуыэюя', en: 'aeiouy' };
+const START_LETTERS = 6;
+
+const KB_CODES = [
+ ['Backquote','Digit1','Digit2','Digit3','Digit4','Digit5','Digit6','Digit7','Digit8','Digit9','Digit0','Minus','Equal'],
+ ['KeyQ','KeyW','KeyE','KeyR','KeyT','KeyY','KeyU','KeyI','KeyO','KeyP','BracketLeft','BracketRight','Backslash'],
+ ['KeyA','KeyS','KeyD','KeyF','KeyG','KeyH','KeyJ','KeyK','KeyL','Semicolon','Quote'],
+ ['KeyZ','KeyX','KeyC','KeyV','KeyB','KeyN','KeyM','Comma','Period','Slash']];
+const FINGERS = [[0,0,1,2,3,3,4,4,5,6,7,7,7],[0,1,2,3,3,4,4,5,6,7,7,7,7],[0,1,2,3,3,4,4,5,6,7,7],[0,1,2,3,3,4,4,5,6,7]];
+const FINGER_NAMES = ['левый мизинец','левый безымянный','левый средний','левый указательный','правый указательный','правый средний','правый безымянный','правый мизинец','большой палец'];
+const LAYOUT = {
+ ru:{base:['ё1234567890-=','йцукенгшщзхъ\\','фывапролджэ','ячсмитьбю.'],shift:['Ё!"№;%:?*()_+','ЙЦУКЕНГШЩЗХЪ/','ФЫВАПРОЛДЖЭ','ЯЧСМИТЬБЮ,']},
+ en:{base:['`1234567890-=','qwertyuiop[]\\',"asdfghjkl;'",'zxcvbnm,./'],shift:['~!@#$%^&*()_+','QWERTYUIOP{}|','ASDFGHJKL:"','ZXCVBNM<>?']}
+};
+const CHARMAP = {}, KEYCHARS = {};
+for (const lang of ['ru','en']) {
+  const m = CHARMAP[lang] = {' ':{code:'Space',shift:false,finger:8}}; const kc = KEYCHARS[lang] = {};
+  KB_CODES.forEach((row,r)=>row.forEach((code,i)=>{
+    const b=[...LAYOUT[lang].base[r]][i], s=[...LAYOUT[lang].shift[r]][i], f=FINGERS[r][i];
+    kc[code]=[b,s];
+    if(!(b in m)) m[b]={code,shift:false,finger:f};
+    if(!(s in m)) m[s]={code,shift:true,finger:f};
+  }));
+}
+
+/* ---------- storage ---------- */
+const store = {
+  get(k,d){ try{ const v=localStorage.getItem('ritm.'+k); return v==null?d:JSON.parse(v);}catch(e){return d;} },
+  set(k,v){ try{ localStorage.setItem('ritm.'+k, JSON.stringify(v)); }catch(e){} }
+};
+const prefersLight = window.matchMedia && matchMedia('(prefers-color-scheme: light)').matches;
+const DEFAULTS = {lang:'ru',mode:'course',time:30,words:25,target:30,punct:false,nums:false,theme:prefersLight?'paper':'night',sound:'off',caret:'line',fontSize:28,smooth:true,keyboard:true,stopOnError:false,yo:true,focus:true,goal:10,unit:'cpm',customText:''};
+const cfg = Object.assign({}, DEFAULTS, store.get('cfg',{}));
+const saveCfg = () => store.set('cfg', cfg);
+let history = store.get('history', []);
+let keyStats = store.get('keys', {ru:{},en:{}});
+let progress = store.get('progress', {});
+
+/* ---------- helpers ---------- */
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const rand = a => a[Math.floor(Math.random()*a.length)];
+const isCyr = c => /[а-яё]/i.test(c);
+const isLat = c => /[a-z]/i.test(c);
+const isLetter = c => isCyr(c) || isLat(c);
+const unitLabel = () => cfg.unit==='wpm' ? 'сл/мин' : 'зн/мин';
+const fmtSpeed = cpm => Math.round(cfg.unit==='wpm' ? cpm/5 : cpm);
+const fmtTime = s => { s=Math.round(s); if(s<60) return s+'с'; const m=Math.floor(s/60); if(m<60) return m+'м '+(s%60)+'с'; return Math.floor(m/60)+'ч '+(m%60)+'м'; };
+const normalize = s => s.replace(/[«»„“”]/g,'"').replace(/[‘’]/g,"'").replace(/[—–]/g,'-').replace(/…/g,'...').replace(/[ \t\r\n]+/g,' ').replace(/ {2,}/g,' ').trim();
+const detectLang = s => { let c=0,l=0; for(const ch of s){ if(isCyr(ch)) c++; else if(isLat(ch)) l++; } return c>=l ? 'ru':'en'; };
+const dayKey = ts => { const d=new Date(ts); return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate(); };
+let toastTimer;
+function toast(msg, warn){ const t=$('#toast'); t.textContent=msg; t.className='toast show'+(warn?' warn':''); clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.className='toast',2000); }
+
+/* ---------- sound ---------- */
+let actx, noiseBuf;
+function sound(kind){
+  if (cfg.sound==='off') return;
+  try {
+    if (!actx){ actx = new (window.AudioContext||window.webkitAudioContext)();
+      noiseBuf = actx.createBuffer(1, actx.sampleRate*0.05, actx.sampleRate);
+      const d = noiseBuf.getChannelData(0); for(let i=0;i<d.length;i++) d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length,4);
+    }
+    const t = actx.currentTime, g = actx.createGain(); g.connect(actx.destination);
+    if (cfg.sound==='soft'){
+      const o = actx.createOscillator(); o.type='sine';
+      o.frequency.value = kind==='err' ? 190 : 520+Math.random()*80;
+      g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(kind==='err'?0.12:0.07,t+0.005); g.gain.exponentialRampToValueAtTime(0.0001,t+0.09);
+      o.connect(g); o.start(t); o.stop(t+0.1);
+    } else {
+      const src = actx.createBufferSource(); src.buffer=noiseBuf;
+      const f = actx.createBiquadFilter(); f.type='bandpass';
+      const tw = cfg.sound==='typewriter';
+      f.frequency.value = kind==='err' ? 350 : (tw ? 1200+Math.random()*400 : 2600+Math.random()*900); f.Q.value = tw?2:1.2;
+      g.gain.value = kind==='err' ? 0.9 : (tw?0.9:0.55);
+      src.connect(f); f.connect(g); src.start(t);
+      if (tw && kind!=='err'){ const o=actx.createOscillator(), g2=actx.createGain(); o.frequency.value=90; g2.gain.setValueAtTime(0.12,t); g2.gain.exponentialRampToValueAtTime(0.0001,t+0.05); o.connect(g2); g2.connect(actx.destination); o.start(t); o.stop(t+0.06); }
+    }
+  } catch(e){}
+}
+
+/* ---------- course progress ---------- */
+function prog(lang){
+  if (!progress[lang]) progress[lang] = {unlocked:START_LETTERS, letters:{}};
+  return progress[lang];
+}
+function focusLetter(lang){
+  const P = prog(lang), L = ORDER[lang].slice(0,P.unlocked), tgt = cfg.target*5;
+  let worst=null, wv=Infinity;
+  for (const c of L){ const s=P.letters[c]; const v = s ? s.ema/tgt : 0; if (v < wv){ wv=v; worst=c; } }
+  return wv >= 1 ? ORDER[lang][P.unlocked-1] : worst;
+}
+function pseudoWord(L, focus, V){
+  const vs = L.filter(c=>V.includes(c)), cs = L.filter(c=>!V.includes(c));
+  const bad = 'ьъый';
+  const len = 2 + Math.floor(Math.random()*5);
+  let w='', vowelTurn = Math.random()<0.45;
+  for (let k=0;k<len;k++){
+    let pool = vowelTurn ? (vs.length?vs:cs) : (cs.length?cs:vs);
+    let c = (pool.includes(focus) && Math.random()<0.3) ? focus : rand(pool);
+    if (k===0) { let tries=0; while (bad.includes(c) && tries++<8) c = rand(L); }
+    w += c;
+    if (Math.random() < 0.82) vowelTurn = !vowelTurn;
+  }
+  if (!w.includes(focus) && Math.random()<0.75){ const p = 1+Math.floor(Math.random()*(w.length-1)); w = w.slice(0,p)+focus+w.slice(p+1); }
+  return w;
+}
+function genCourse(lang, n){
+  const P = prog(lang), L = ORDER[lang].slice(0,P.unlocked), set = new Set(L), focus = focusLetter(lang);
+  const real = WORDS[lang].filter(w => w.length>1 && [...w].every(c=>set.has(c)));
+  const realF = real.filter(w=>w.includes(focus));
+  const out=[];
+  for (let i=0;i<n;i++){
+    let w;
+    if (real.length >= 10 && Math.random()<0.55) w = (realF.length && Math.random()<0.7) ? rand(realF) : rand(real);
+    else w = pseudoWord(L, focus, VOWELS[lang]);
+    if (w === out[out.length-1]) w = pseudoWord(L, focus, VOWELS[lang]);
+    out.push(w);
+  }
+  return out;
+}
+
+/* ---------- text generation ---------- */
+let lastTextIdx = -1;
+function genWords(n, pool){
+  pool = pool || WORDS[cfg.lang];
+  const out=[]; let cap = cfg.punct, prev='';
+  for (let i=0;i<n;i++){
+    let w = rand(pool); if (w===prev) w = rand(pool); prev = w;
+    if (cfg.nums && Math.random()<0.1) w = String(Math.floor(Math.random()*(Math.random()<.5?100:2030)));
+    if (cfg.punct){
+      if (cap){ w = w[0].toUpperCase()+w.slice(1); cap=false; }
+      const r = Math.random();
+      if (r<0.09){ w+='.'; cap=true; } else if (r<0.17) w+=','; else if (r<0.19){ w+='?'; cap=true; } else if (r<0.21){ w+='!'; cap=true; } else if (r<0.225) w+=':'; else if (r<0.24 && i<n-1) w+=' -';
+    }
+    out.push(w);
+  }
+  if (cfg.punct && out.length && !/[.?!]$/.test(out[out.length-1])) out[out.length-1] = out[out.length-1].replace(/[,:-]$/,'').replace(/ -$/,'') + '.';
+  return out;
+}
+function weakLetters(lang, n=5){
+  const ks = keyStats[lang] || {};
+  return Object.entries(ks).filter(([k,v]) => isLetter(k) && v.h+v.m >= 6 && v.m>0)
+    .map(([k,v]) => [k, v.m/(v.h+v.m)]).sort((a,b)=>b[1]-a[1]).slice(0,n).map(x=>x[0]);
+}
+function buildText(){
+  switch (cfg.mode){
+    case 'course': return genCourse(cfg.lang, 22).join(' ');
+    case 'time': return genWords(70).join(' ');
+    case 'words': return genWords(cfg.words).join(' ');
+    case 'text': { const arr=TEXTS[cfg.lang]; let i; do { i=Math.floor(Math.random()*arr.length); } while (arr.length>1 && i===lastTextIdx); lastTextIdx=i; return normalize(arr[i]); }
+    case 'weak': {
+      const wl = weakLetters(cfg.lang);
+      if (!wl.length){ toast('Пока мало данных об ошибках — тренируем обычные слова'); return genWords(35).join(' '); }
+      const pool = WORDS[cfg.lang].filter(w => wl.some(c=>w.includes(c)));
+      return genWords(35, pool.length>8 ? pool : null).join(' ');
+    }
+    case 'custom': { const t = normalize(cfg.customText||''); if (t) return t; setTimeout(openCustom, 50); return genWords(25).join(' '); }
+  }
+  return genWords(25).join(' ');
+}
+
+/* ---------- keyboard ---------- */
+let kbKeys = {}, kbLang = null, nextEls = [];
+function buildKeyboard(container, lang, heat){
+  container.innerHTML=''; const map = {};
+  const mk = (label, cls, w, code, finger) => {
+    const k = document.createElement('div'); k.className='key'+(cls?' '+cls:''); if (w) k.style.setProperty('--w', w);
+    if (finger!=null) k.style.setProperty('--fc', `var(--f${finger})`);
+    k.textContent = label; if (code) map[code]=k; return k;
+  };
+  const extras = [[null,['⌫',2,'Backspace']],[['Tab',1.5,'Tab'],['',1.5,'Backslash*']],[['Caps',1.8,'CapsLock'],['Enter',2.25,'Enter']],[['Shift',2.4,'ShiftLeft'],['Shift',2.9,'ShiftRight']]];
+  KB_CODES.forEach((row,r)=>{
+    const rowEl = document.createElement('div'); rowEl.className='kr';
+    const [pre, post] = extras[r];
+    if (pre) rowEl.appendChild(mk(pre[0],'mod',pre[1],pre[2]));
+    row.forEach((code,i)=>{
+      const ch = KEYCHARS[lang][code][0];
+      const isHome = (code==='KeyF'||code==='KeyJ');
+      const w = (r===1 && i===12) ? 1.5 : 1;
+      rowEl.appendChild(mk(ch.toUpperCase(), isHome?'home':'', w, code, FINGERS[r][i]));
+    });
+    if (post && post[2]!=='Backslash*') rowEl.appendChild(mk(post[0],'mod',post[1],post[2]));
+    container.appendChild(rowEl);
+  });
+  const last = document.createElement('div'); last.className='kr'; last.style.justifyContent='center';
+  last.appendChild(mk('', '', 6.5, 'Space', 8)); container.appendChild(last);
+  if (heat){
+    const ks = keyStats[lang]||{};
+    for (const code in map){
+      const ch = KEYCHARS[lang][code] ? KEYCHARS[lang][code][0] : (code==='Space'?' ':null);
+      const s = ch!=null && ks[ch];
+      if (s && s.h+s.m>0){ const p = Math.min(100, Math.round(s.m/(s.h+s.m)*100*4)); map[code].style.background = `color-mix(in srgb, var(--error) ${p}%, var(--surface2))`; map[code].title = `${ch===' '?'пробел':ch}: ${Math.round(s.m/(s.h+s.m)*100)}% ошибок (${s.h+s.m} нажатий)`; if (p>45) map[code].style.color='#fff'; }
+    }
+  }
+  return map;
+}
+function handSVG(right){
+  const F = right ? [7,6,5,4] : [0,1,2,3];
+  const geo = [[8,40,50],[29,18,72],[50,8,82],[71,20,70]];
+  let s = geo.map(([x,y,h],i)=>`<rect class="fg" data-f="${F[i]}" style="--fc:var(--f${F[i]})" x="${x}" y="${y}" width="19" height="${h}" rx="9.5"><title>${FINGER_NAMES[F[i]]}</title></rect>`).join('');
+  s += `<rect class="fg" data-f="8" style="--fc:var(--accent)" x="88" y="78" width="20" height="46" rx="10" transform="rotate(34 98 124)"><title>большой палец</title></rect>`;
+  s += `<rect class="palm" x="5" y="72" width="96" height="84" rx="26"/>`;
+  return `<svg class="hand" viewBox="0 0 120 160" aria-hidden="true">${right ? `<g transform="translate(120 0) scale(-1 1)">${s}</g>` : s}</svg>`;
+}
+$('#handL').outerHTML = handSVG(false); $('#handR').outerHTML = handSVG(true);
+function ensureKeyboard(lang){ if (kbLang!==lang){ kbKeys = buildKeyboard($('#kb'), lang); kbLang = lang; } }
+function highlightNext(){
+  nextEls.forEach(e=>e.classList.remove('next')); nextEls=[];
+  $$('#kbWrap .fg.on').forEach(e=>e.classList.remove('on'));
+  if (!cfg.keyboard || !T || T.done) return;
+  const c = T.text[T.pos]; if (c==null) return;
+  const m = CHARMAP[T.lang][c] || CHARMAP[T.lang][c.toLowerCase()] || (cfg.yo && c==='ё' ? CHARMAP.ru['ё'] : null);
+  if (!m) return;
+  const k = kbKeys[m.code]; if (k){ k.classList.add('next'); nextEls.push(k); }
+  if (m.shift){ const sh = kbKeys[m.finger<4 ? 'ShiftRight':'ShiftLeft']; if (sh){ sh.classList.add('next'); sh.style.setProperty('--fc', m.finger<4?'var(--f7)':'var(--f0)'); nextEls.push(sh);} }
+  const fingers = [m.finger]; if (m.shift) fingers.push(m.finger<4 ? 7 : 0);
+  fingers.forEach(f => $$(`#kbWrap .fg[data-f="${f}"]`).forEach(e=>e.classList.add('on')));
+}
+function flashKey(code, err){
+  const k = kbKeys[code]; if (!k) return;
+  const cls = err ? 'perr':'press'; k.classList.add(cls); setTimeout(()=>k.classList.remove(cls), err?220:110);
+}
+
+/* ---------- typing engine ---------- */
+const wrap = $('#wrap'), wordsEl = $('#words'), txt = $('#txt'), caret = $('#caret');
+let T = null, chars = [], lineH = 40, scrollY = 0, timer = null, idleTimer = null;
+
+function newTest(repeat){
+  stopTimer();
+  const text = (repeat && T) ? T.text0 : buildText();
+  T = { text, text0:text, lang: cfg.mode==='custom' ? detectLang(text) : cfg.lang, pos:0, typed:[], correct:0, keys:0, errors:0,
+        started:false, done:false, t0:0, lastSec:0, prevKeys:0, secErr:0, samples:[], keyRec:{}, letterTimes:{}, lastKeyT:0, missRec:{} };
+  render();
+  showResults(false);
+  document.body.classList.remove('typing');
+  $('#test').classList.remove('started');
+  $('#live').classList.add('idle');
+  updateLive(0);
+  ensureKeyboard(T.lang);
+  highlightNext();
+  renderCourse();
+  focusInput();
+}
+function render(){
+  txt.textContent=''; chars=[]; scrollY=0;
+  wordsEl.style.transition='none'; wordsEl.style.transform='translateY(0)';
+  appendText(T.text);
+  lineH = parseFloat(getComputedStyle(wordsEl).lineHeight) || cfg.fontSize*1.65;
+  wrap.style.height = (lineH*3)+'px';
+  requestAnimationFrame(()=>{ wordsEl.style.transition=''; });
+  updateCaret(true);
+}
+function appendText(str){
+  const frag = document.createDocumentFragment();
+  let word = null;
+  if (chars.length && str[0]===' ') word = txt.lastElementChild;
+  for (const c of str){
+    if (!word){ word = document.createElement('span'); word.className='word'; frag.appendChild(word); }
+    const s = document.createElement('span');
+    s.className = c===' ' ? 'ch sp' : 'ch'; s.textContent = c;
+    word.appendChild(s); chars.push(s);
+    if (c===' ') word = null;
+  }
+  txt.appendChild(frag);
+}
+function baseCls(i){ return T.text[i]===' ' ? 'ch sp' : 'ch'; }
+function updateCaret(instant){
+  if (!chars.length) return;
+  const el = chars[T.pos];
+  let x, y, w;
+  if (el){ x = el.offsetLeft; y = el.parentNode.offsetTop; w = el.offsetWidth; }
+  else { const l = chars[chars.length-1]; x = l.offsetLeft + l.offsetWidth; y = l.parentNode.offsetTop; w = l.offsetWidth; }
+  const newScroll = Math.max(0, y - lineH);
+  if (newScroll !== scrollY){ scrollY = newScroll; wordsEl.style.transform = `translateY(${-scrollY}px)`; }
+  let h, cy, cw = 3;
+  if (cfg.caret==='block'){ h = lineH*0.72; cy = y + (lineH-h)/2; cw = w; }
+  else if (cfg.caret==='under'){ h = 3; cy = y + lineH*0.84; cw = w; }
+  else { h = lineH*0.62; cy = y + (lineH-h)/2; x -= 1; }
+  caret.style.height = h+'px'; caret.style.width = cw+'px';
+  if (instant){ caret.style.transition='none'; caret.style.transform=`translate(${x}px,${cy}px)`; void caret.offsetWidth; caret.style.transition=''; }
+  else caret.style.transform=`translate(${x}px,${cy}px)`;
+  caret.classList.remove('blink'); clearTimeout(idleTimer);
+  idleTimer = setTimeout(()=>caret.classList.add('blink'), T.started ? 900 : 0);
+}
+function start(){
+  T.started = true; T.t0 = performance.now(); T.lastKeyT = T.t0;
+  $('#test').classList.add('started'); $('#live').classList.remove('idle');
+  if (cfg.focus) document.body.classList.add('typing');
+  timer = setInterval(tick, 100);
+}
+function stopTimer(){ if (timer){ clearInterval(timer); timer=null; } }
+function elapsed(){ return T.started ? (performance.now()-T.t0)/1000 : 0; }
+function tick(){
+  const el = elapsed(), sec = Math.floor(el);
+  while (T.lastSec < sec){
+    T.lastSec++;
+    T.samples.push({ cpm: T.correct/(T.lastSec/60), raw: (T.keys-T.prevKeys)*60, err: T.secErr });
+    T.prevKeys = T.keys; T.secErr = 0;
+  }
+  if (cfg.mode==='time' && el >= cfg.time){ finish(); return; }
+  updateLive(el);
+}
+function updateLive(el){
+  const timeMode = cfg.mode==='time';
+  $('#lvTime').textContent = timeMode ? Math.max(0, Math.ceil(cfg.time - el)) : Math.floor(el);
+  $('#lvTimeLbl').textContent = timeMode ? 'осталось' : 'сек';
+  $('#lvSpeedLbl').textContent = unitLabel();
+  $('#lvSpeed').textContent = el > 1.5 ? fmtSpeed(T.correct/(el/60)) : '—';
+  $('#lvAcc').textContent = T.keys ? Math.round((T.keys-T.errors)/T.keys*100)+'%' : '—';
+  $('#lvErr').textContent = T.errors;
+  $('#progressBar').style.width = (timeMode ? Math.min(100, el/cfg.time*100) : T.pos/T.text.length*100) + '%';
+}
+function sameChar(c, exp){
+  if (c===exp) return true;
+  if (cfg.yo){ if (exp==='ё' && c==='е') return true; if (exp==='Ё' && c==='Е') return true; }
+  return false;
+}
+function wrongLayout(c, exp){
+  if (sameChar(c,exp)) return false;
+  if (isCyr(exp) && isLat(c)) return 'ru';
+  if (isLat(exp) && isCyr(c)) return 'en';
+  const lang = isCyr(exp) ? 'ru' : isLat(exp) ? 'en' : null; if (!lang) return false;
+  const other = lang==='ru' ? 'en':'ru', m = CHARMAP[other][c];
+  if (!m || CHARMAP[lang][c]) return false;
+  const tr = KEYCHARS[lang][m.code]; return tr && sameChar(tr[m.shift?1:0], exp) ? lang : false;
+}
+function handleChar(c, code){
+  if (!T || T.done) return;
+  const exp = T.text[T.pos]; if (exp===undefined) return;
+  const wl = wrongLayout(c, exp);
+  if (wl){ toast(wl==='ru' ? 'Переключите раскладку на русскую (RU)' : 'Переключите раскладку на английскую (EN)', true); return; }
+  if (!T.started) start();
+  const now = performance.now();
+  const ok = sameChar(c, exp);
+  T.keys++;
+  const k = exp.toLowerCase();
+  const rec = T.keyRec[k] || (T.keyRec[k] = {h:0,m:0});
+  if (ok) rec.h++; else { rec.m++; T.errors++; T.secErr++; T.missRec[k]=(T.missRec[k]||0)+1; }
+  sound(ok?'ok':'err');
+  if (code) flashKey(code, !ok);
+  if (!ok && cfg.stopOnError){
+    const el = chars[T.pos]; el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump');
+    T.hadErr = T.hadErr || {}; T.hadErr[T.pos] = true;
+    updateLive(elapsed()); return;
+  }
+  if (ok && isLetter(exp) && T.pos>0 && T.typed[T.pos-1]){
+    const dt = now - T.lastKeyT;
+    if (dt > 30 && dt < 2500) (T.letterTimes[k] || (T.letterTimes[k]=[])).push(dt);
+  }
+  T.lastKeyT = now;
+  T.typed[T.pos] = ok;
+  chars[T.pos].className = baseCls(T.pos) + (ok ? (T.hadErr && T.hadErr[T.pos] ? ' fix':' ok') : ' err');
+  if (ok) T.correct++;
+  T.pos++;
+  if (cfg.mode==='time' && T.text.length - T.pos < 90){
+    const more = ' ' + genWords(40).join(' '); T.text += more; appendText(more);
+  }
+  if (T.pos >= T.text.length && cfg.mode!=='time'){ finish(); return; }
+  updateCaret(); highlightNext();
+  if (!timer) return;
+  $('#lvErr').textContent = T.errors;
+  if (cfg.mode!=='time') $('#progressBar').style.width = (T.pos/T.text.length*100)+'%';
+}
+function backspace(word){
+  if (!T || T.done || T.pos===0) return;
+  const del = () => { T.pos--; if (T.typed[T.pos]) T.correct--; T.typed[T.pos]=undefined; chars[T.pos].className = baseCls(T.pos); };
+  if (word){ while (T.pos>0 && T.text[T.pos-1]===' ') del(); while (T.pos>0 && T.text[T.pos-1]!==' ') del(); }
+  else del();
+  T.lastKeyT = 0;
+  updateCaret(); highlightNext();
+}
+function finish(){
+  if (T.done) return;
+  T.done = true; stopTimer();
+  let dur = elapsed();
+  if (cfg.mode==='time') dur = cfg.time;
+  if (dur - T.lastSec >= 0.5){ const part = dur - T.lastSec; T.samples.push({cpm: T.correct/(dur/60), raw: (T.keys-T.prevKeys)/part*60, err:T.secErr}); }
+  const cpm = dur>0 ? T.correct/(dur/60) : 0, raw = dur>0 ? T.keys/(dur/60) : 0;
+  const acc = T.keys ? (T.keys-T.errors)/T.keys*100 : 0;
+  const raws = T.samples.map(s=>s.raw); let cons = null;
+  if (raws.length >= 3){ const mean = raws.reduce((a,b)=>a+b,0)/raws.length; const sd = Math.sqrt(raws.reduce((a,b)=>a+(b-mean)**2,0)/raws.length); cons = mean ? Math.max(0, Math.round(100*(1 - sd/mean))) : 0; }
+  // too short / afk — don't save garbage
+  const valid = T.keys >= 10 && dur >= 3;
+  const param = cfg.mode==='time' ? cfg.time : cfg.mode==='words' ? cfg.words : null;
+  const entry = { ts: Date.now(), lang: T.lang, mode: cfg.mode, param, cpm: Math.round(cpm), raw: Math.round(raw), acc: Math.round(acc*10)/10, dur: Math.round(dur*10)/10, chars: T.pos, errors: T.errors, cons };
+  let record = false;
+  if (valid){
+    const same = history.filter(h => h.lang===entry.lang && h.mode===entry.mode && h.param===entry.param);
+    record = same.length>0 && entry.cpm > Math.max(...same.map(h=>h.cpm)) && acc >= 85;
+    history.push(entry); if (history.length > 1000) history = history.slice(-1000); store.set('history', history);
+    const ks = keyStats[T.lang] || (keyStats[T.lang]={});
+    for (const k in T.keyRec){ const s = ks[k] || (ks[k]={h:0,m:0}); s.h += T.keyRec[k].h; s.m += T.keyRec[k].m; }
+    store.set('keys', keyStats);
+    updateCourse();
+  }
+  document.body.classList.remove('typing');
+  showResults(true, {entry, cpm, raw, acc, dur, cons, record, valid});
+  updateHeaderChips();
+}
+function updateCourse(){
+  const P = prog(T.lang), tgt = cfg.target*5;
+  for (const k in T.letterTimes){
+    const arr = T.letterTimes[k]; if (arr.length < 2) continue;
+    arr.sort((a,b)=>a-b); const med = arr[Math.floor(arr.length/2)];
+    const v = 60000/med, s = P.letters[k] || (P.letters[k] = {ema:0, n:0});
+    s.ema = s.n ? s.ema*0.65 + v*0.35 : v; s.n++;
+  }
+  if (cfg.mode==='course'){
+    const L = ORDER[T.lang].slice(0,P.unlocked);
+    const acc = T.keys ? (T.keys-T.errors)/T.keys : 0;
+    if (acc >= 0.9 && P.unlocked < ORDER[T.lang].length && L.every(c => P.letters[c] && P.letters[c].ema >= tgt)){
+      P.unlocked++; const nl = ORDER[T.lang][P.unlocked-1];
+      setTimeout(()=>toast(`Открыта новая буква: «${nl.toUpperCase()}»`), 400);
+    }
+  }
+  store.set('progress', progress);
+}
+function renderCourse(){
+  const show = cfg.mode==='course';
+  $('#course').hidden = !show; if (!show) return;
+  const lang = cfg.lang, P = prog(lang), tgt = cfg.target*5, focus = focusLetter(lang);
+  $('#letters').innerHTML = ORDER[lang].map((c,i)=>{
+    const on = i < P.unlocked, s = P.letters[c], r = s ? Math.min(1, s.ema/tgt) : 0;
+    const col = r>=1 ? 'var(--good)' : r>0.7 ? 'var(--accent)' : 'var(--error)';
+    const title = on ? (s ? `${c.toUpperCase()}: ${fmtSpeed(s.ema)} ${unitLabel()}` : `${c.toUpperCase()}: нет данных`) : 'откроется позже';
+    return `<div class="lt${on?' on':''}${c===focus&&on?' focus':''}" style="--p:${Math.round(r*100)}%;--lc:${col}" title="${title}">${c}</div>`;
+  }).join('');
+  const fs = P.letters[focus];
+  $('#courseInfo').innerHTML = `<span>открыто: <b>${P.unlocked}/${ORDER[lang].length}</b></span><span>фокус: <b>${focus.toUpperCase()}</b> ${fs?fmtSpeed(fs.ema):'—'} / ${fmtSpeed(tgt)} ${unitLabel()}</span><span style="color:var(--sub)">новая буква откроется, когда все открытые достигнут цели при точности от 90%</span>`;
+}
+
+/* ---------- results ---------- */
+const MODE_NAMES = {course:'курс',time:'время',words:'слова',text:'текст',weak:'слабые',custom:'свой'};
+const modeLabel = h => MODE_NAMES[h.mode] + (h.param ? ' '+h.param+(h.mode==='time'?'с':'') : '') + ' · ' + h.lang.toUpperCase();
+function showResults(on, r){
+  $('#results').hidden = !on; $('#testBox').hidden = on; $('#live').style.display = on ? 'none':'';
+  $('#course').style.display = on ? 'none' : '';
+  if (!on) return;
+  $('#rsUnit').textContent = unitLabel();
+  $('#rsSpeed').textContent = fmtSpeed(r.cpm);
+  $('#rsAcc').textContent = Math.round(r.acc)+'%';
+  $('#rsBadge').hidden = !r.record;
+  $('#rsRaw').textContent = fmtSpeed(r.raw);
+  $('#rsChars').innerHTML = `${T.correct}<span style="color:var(--sub)">/</span><span style="color:var(--error)">${T.pos-T.correct}</span>`;
+  $('#rsErr').textContent = T.errors;
+  $('#rsTime').textContent = fmtTime(r.dur);
+  $('#rsCons').textContent = r.cons==null ? '—' : r.cons+'%';
+  $('#rsMode').textContent = modeLabel(r.entry);
+  const miss = Object.entries(T.missRec).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  $('#rsKeys').innerHTML = miss.length ? '<span>ошибки в клавишах:</span>' + miss.map(([k,n])=>`<span class="kchip">${k===' '?'␣':k}<em>×${n}</em></span>`).join('') : (r.valid ? '<span style="color:var(--good)">Ни одной ошибки — отлично!</span>' : '<span>Тест слишком короткий — в статистику не записан.</span>');
+  $('#trainWeakBtn').hidden = !miss.length;
+  requestAnimationFrame(()=>drawResultChart());
+}
+function drawResultChart(){
+  const s = T.samples; if (!s.length) { drawChart($('#rsChart'), {series:[], n:0}); return; }
+  const k = cfg.unit==='wpm' ? 0.2 : 1;
+  const rawSm = s.map((_,i)=>{ const a = s.slice(Math.max(0,i-1), i+2); return a.reduce((x,y)=>x+y.raw,0)/a.length*k; });
+  drawChart($('#rsChart'), { series:[ {data:rawSm, color:'--sub2', width:1.5, dash:[4,4]}, {data:s.map(x=>x.cpm*k), color:'--accent', width:2.5, fill:true} ],
+    dots: s.map((x,i)=>x.err ? {i, v:x.cpm*k, n:x.err} : null).filter(Boolean), xlab: i => (i+1)+'с' });
+}
+function niceMax(v){ if (v<=10) return 10; const p = Math.pow(10, Math.floor(Math.log10(v))); for (const m of [1,1.5,2,2.5,3,4,5,6,8,10]) if (m*p >= v) return m*p; return 10*p; }
+function drawChart(cv, o){
+  const dpr = window.devicePixelRatio||1, w = cv.clientWidth, h = cv.clientHeight;
+  cv.width = w*dpr; cv.height = h*dpr; const c = cv.getContext('2d'); c.scale(dpr,dpr); c.clearRect(0,0,w,h);
+  const css = getComputedStyle(document.documentElement), col = v => css.getPropertyValue(v).trim();
+  const n = Math.max(0, ...o.series.map(s=>s.data.length));
+  if (!n){ c.fillStyle=col('--sub'); c.font='13px Manrope, sans-serif'; c.textAlign='center'; c.fillText('Недостаточно данных', w/2, h/2); return; }
+  const pad = {l:42,r:12,t:28,b:24}, max = niceMax(Math.max(...o.series.flatMap(s=>s.data)) * 1.08);
+  const X = i => pad.l + (n===1 ? (w-pad.l-pad.r)/2 : i*(w-pad.l-pad.r)/(n-1));
+  const Y = v => pad.t + (1 - v/max)*(h-pad.t-pad.b);
+  c.font = '11px JetBrains Mono, monospace'; c.fillStyle = col('--sub'); c.strokeStyle = col('--line'); c.lineWidth = 1;
+  c.textAlign='right'; c.textBaseline='middle';
+  for (let g=0; g<=4; g++){ const v = max*g/4, y = Y(v); c.beginPath(); c.moveTo(pad.l, y); c.lineTo(w-pad.r, y); c.globalAlpha=.6; c.stroke(); c.globalAlpha=1; c.fillText(Math.round(v), pad.l-8, y); }
+  c.textAlign='center'; c.textBaseline='top';
+  const step = Math.max(1, Math.ceil(n / Math.max(2, Math.floor((w-pad.l)/52))));
+  for (let i=0;i<n;i+=step) c.fillText(o.xlab ? o.xlab(i) : i+1, X(i), h-pad.b+7);
+  for (const s of o.series){
+    if (!s.data.length) continue;
+    const stroke = col(s.color);
+    c.beginPath(); s.data.forEach((v,i)=> i ? c.lineTo(X(i),Y(v)) : c.moveTo(X(i),Y(v)));
+    if (s.fill && s.data.length>1){
+      const gr = c.createLinearGradient(0,pad.t,0,h-pad.b); gr.addColorStop(0, stroke+'40'); gr.addColorStop(1, stroke+'00');
+      c.save(); c.lineTo(X(s.data.length-1), Y(0)); c.lineTo(X(0), Y(0)); c.closePath(); c.fillStyle = gr; c.fill(); c.restore();
+      c.beginPath(); s.data.forEach((v,i)=> i ? c.lineTo(X(i),Y(v)) : c.moveTo(X(i),Y(v)));
+    }
+    c.strokeStyle = stroke; c.lineWidth = s.width||2; c.lineJoin='round'; c.lineCap='round'; c.setLineDash(s.dash||[]); c.stroke(); c.setLineDash([]);
+    if (s.data.length===1){ c.fillStyle=stroke; c.beginPath(); c.arc(X(0),Y(s.data[0]),4,0,7); c.fill(); }
+  }
+  if (o.dots){ c.fillStyle = col('--error'); for (const d of o.dots){ c.beginPath(); c.arc(X(d.i), Y(d.v), Math.min(7, 2.5+d.n), 0, 7); c.fill(); } }
+}
+
+/* ---------- stats view ---------- */
+function streak(){
+  const days = new Set(history.map(h=>dayKey(h.ts)));
+  let d = new Date(), n = 0;
+  if (!days.has(dayKey(d))) d.setDate(d.getDate()-1);
+  while (days.has(dayKey(d))){ n++; d.setDate(d.getDate()-1); }
+  return n;
+}
+function todayMinutes(){ const t = dayKey(Date.now()); return history.filter(h=>dayKey(h.ts)===t).reduce((a,h)=>a+h.dur,0)/60; }
+function updateHeaderChips(){
+  $('#streakVal').textContent = streak();
+  const m = todayMinutes(), p = Math.min(1, m/cfg.goal);
+  $('#goalVal').textContent = `${Math.floor(m)} / ${cfg.goal} мин`;
+  $('#goalRing').style.strokeDashoffset = 47.12*(1-p);
+}
+function renderStats(){
+  const H = history, last10 = H.slice(-10);
+  $('#stTests').textContent = H.length;
+  $('#stTime').textContent = fmtTime(H.reduce((a,h)=>a+h.dur,0));
+  $('#stBestLbl').textContent = 'рекорд, '+unitLabel(); $('#stAvgLbl').textContent = 'средняя (10 посл.)';
+  $('#stBest').textContent = H.length ? fmtSpeed(Math.max(...H.map(h=>h.cpm))) : '—';
+  $('#stAvg').textContent = last10.length ? fmtSpeed(last10.reduce((a,h)=>a+h.cpm,0)/last10.length) : '—';
+  $('#stAcc').textContent = H.length ? Math.round(H.reduce((a,h)=>a+h.acc,0)/H.length)+'%' : '—';
+  $('#stStreak').textContent = streak() + ' 🔥';
+  const m = todayMinutes(); $('#stGoal').textContent = `${Math.floor(m)} / ${cfg.goal} мин`; $('#stGoalBar').style.width = Math.min(100, m/cfg.goal*100)+'%';
+  const k = cfg.unit==='wpm' ? 0.2 : 1, pts = H.slice(-80).map(h=>h.cpm*k);
+  const avg = pts.map((_,i)=>{ const a = pts.slice(Math.max(0,i-9), i+1); return a.reduce((x,y)=>x+y,0)/a.length; });
+  const off = Math.max(0, H.length-80);
+  requestAnimationFrame(()=>drawChart($('#stChart'), {series:[{data:pts, color:'--sub2', width:1.2}, {data:avg, color:'--accent', width:2.5, fill:true}], xlab: i => '#'+(off+i+1)}));
+  buildKeyboard($('#heatKb'), cfg.lang, true);
+  const ks = keyStats[cfg.lang]||{};
+  const worst = Object.entries(ks).filter(([c,s])=>s.h+s.m>=5 && s.m>0).map(([c,s])=>[c, s.m/(s.h+s.m), s.h+s.m]).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  $('#weakList').innerHTML = worst.length ? worst.map(([c,p,n])=>`<span class="kchip" title="${n} нажатий">${c===' '?'␣':c}<em>${Math.round(p*100)}%</em></span>`).join('') : '<span style="color:var(--sub);font-size:14px">Пройдите пару тестов — здесь появятся клавиши, на которых вы чаще ошибаетесь.</span>';
+  $('#histTable').innerHTML = H.length ? `<table><tr><th>когда</th><th>режим</th><th>${unitLabel()}</th><th>точность</th><th>время</th><th>стабильность</th></tr>${
+    H.slice(-20).reverse().map(h=>`<tr><td>${new Date(h.ts).toLocaleString('ru-RU',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}</td><td style="font-family:var(--sans)">${modeLabel(h)}</td><td>${fmtSpeed(h.cpm)}</td><td>${Math.round(h.acc)}%</td><td>${fmtTime(h.dur)}</td><td>${h.cons==null?'—':h.cons+'%'}</td></tr>`).join('')}</table>` : '<div class="empty">Здесь появится история ваших тестов.</div>';
+}
+
+/* ---------- views & settings ---------- */
+let view = 'practice';
+function setView(v){
+  view = v;
+  $$('.nav button').forEach(b=>b.classList.toggle('active', b.dataset.view===v));
+  $('#view-practice').hidden = v!=='practice'; $('#view-stats').hidden = v!=='stats';
+  if (v==='stats') renderStats(); else focusInput();
+}
+const THEMES = [['night','Ночь'],['paper','Бумага'],['ocean','Океан'],['forest','Лес'],['sakura','Сакура'],['terminal','Терминал']];
+function buildSwatches(){
+  $('#swatches').innerHTML = THEMES.map(([id,name])=>`<button class="sw" data-set="theme" data-val="${id}" data-theme="${id}" style="background:var(--bg);color:var(--text)">${name}<span><i style="background:var(--accent)"></i><i style="background:var(--text)"></i><i style="background:var(--error)"></i></span></button>`).join('');
+}
+const RESET_KEYS = ['lang','mode','time','words','punct','nums','target'];
+function applyCfg(changed){
+  document.documentElement.dataset.theme = cfg.theme;
+  document.documentElement.style.setProperty('--fs', cfg.fontSize+'px');
+  document.documentElement.style.setProperty('--caret-t', cfg.smooth ? '85ms' : '0ms');
+  caret.classList.toggle('block', cfg.caret==='block');
+  $('#kbWrap').style.display = cfg.keyboard ? '' : 'none';
+  $$('[data-set]').forEach(b => b.classList.toggle('active', String(cfg[b.dataset.set])===b.dataset.val));
+  $$('[data-toggle]').forEach(b => b.classList.toggle('active', !!cfg[b.dataset.toggle]));
+  $$('[data-show]').forEach(el => el.style.display = el.dataset.show.split(' ').includes(cfg.mode) ? '' : 'none');
+  $('#lvSpeedLbl').textContent = unitLabel();
+  if (!T) return;
+  if (changed && RESET_KEYS.includes(changed)) newTest();
+  else if (changed==='fontSize' || changed==='caret'){ const p=T.pos; render(); T.pos=p; updateCaret(true); }
+  else if (changed==='keyboard') highlightNext();
+  else if (changed==='unit'){ renderCourse(); if (!$('#results').hidden) { $('#rsUnit').textContent=unitLabel(); drawResultChart(); } }
+  else if (changed==='goal') updateHeaderChips();
+  else if (changed==='theme' && !$('#results').hidden) drawResultChart();
+  if (view==='stats' && changed) renderStats();
+}
+document.addEventListener('click', e => {
+  const s = e.target.closest('[data-set]');
+  if (s){ const k=s.dataset.set, raw=s.dataset.val; const v = /^\d+$/.test(raw) ? Number(raw) : raw;
+    if (k==='mode' && v==='custom' && !cfg.customText){ openCustom(); return; }
+    cfg[k]=v; saveCfg(); applyCfg(k); s.blur(); if (!overlayOpen()) focusInput(); return; }
+  const t = e.target.closest('[data-toggle]');
+  if (t){ const k=t.dataset.toggle; cfg[k]=!cfg[k]; saveCfg(); applyCfg(k); t.blur(); if (!overlayOpen()) focusInput(); return; }
+  const nv = e.target.closest('[data-view]'); if (nv){ setView(nv.dataset.view); nv.blur(); return; }
+  if (e.target.closest('[data-close]') || e.target.classList.contains('overlay')){ closeOverlays(); return; }
+});
+
+function openCustom(){ $('#customText').value = cfg.customText || ''; $('#customModal').hidden = false; setTimeout(()=>$('#customText').focus(), 30); }
+function closeOverlays(){ $$('.overlay').forEach(o=>o.hidden=true); focusInput(); }
+const overlayOpen = () => $$('.overlay').some(o=>!o.hidden);
+$('#editCustom').onclick = openCustom;
+$('#saveCustom').onclick = () => {
+  const v = normalize($('#customText').value);
+  if (!v){ toast('Вставьте хотя бы пару слов', true); return; }
+  cfg.customText = $('#customText').value; cfg.mode='custom'; saveCfg(); closeOverlays(); applyCfg('mode');
+};
+$('#openSettings').onclick = () => { $('#settings').hidden = false; };
+$('#restartBtn').onclick = () => newTest();
+$('#repeatBtn').onclick = () => newTest(true);
+$('#nextBtn').onclick = () => newTest();
+$('#againBtn').onclick = () => newTest(true);
+$('#trainWeakBtn').onclick = () => { cfg.mode='weak'; saveCfg(); applyCfg('mode'); };
+$('#goWeak').onclick = () => { cfg.mode='weak'; saveCfg(); setView('practice'); applyCfg('mode'); };
+$('#resetBtn').onclick = () => {
+  if (!confirm('Удалить всю историю, статистику клавиш и прогресс курса? Это нельзя отменить.')) return;
+  history=[]; keyStats={ru:{},en:{}}; progress={}; store.set('history',history); store.set('keys',keyStats); store.set('progress',progress);
+  renderStats(); updateHeaderChips(); toast('Статистика сброшена');
+};
+$('#exportBtn').onclick = () => {
+  const blob = new Blob([JSON.stringify({history, keyStats, progress}, null, 1)], {type:'application/json'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'ritm-stats.json'; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href), 1000);
+};
+
+/* ---------- input ---------- */
+const hid = $('#hid'), SENT = '  ';
+hid.value = SENT;
+function focusInput(){ if (view==='practice' && !overlayOpen()) { try{ hid.focus({preventScroll:true}); }catch(e){} } }
+wrap.addEventListener('mousedown', e=>{ e.preventDefault(); focusInput(); });
+document.addEventListener('keydown', e => {
+  if (overlayOpen()){ if (e.key==='Escape') closeOverlays(); return; }
+  const tgt = e.target; if (tgt !== hid && (tgt.tagName==='INPUT' || tgt.tagName==='TEXTAREA')) return;
+  if (e.key==='Tab'){ e.preventDefault(); if (view!=='practice') setView('practice'); newTest(); return; }
+  if (view!=='practice') return;
+  if (!$('#results').hidden){
+    if (e.key==='Enter'){ e.preventDefault(); newTest(); }
+    else if (e.key==='Escape'){ e.preventDefault(); newTest(true); }
+    return;
+  }
+  if (e.key==='Escape'){ e.preventDefault(); newTest(true); return; }
+  if (e.isComposing || e.key==='Process' || e.key==='Unidentified') return;
+  if (e.key==='Backspace'){ e.preventDefault(); backspace(e.ctrlKey || e.altKey || e.metaKey); flashKey('Backspace'); return; }
+  if (e.ctrlKey || e.metaKey || (e.altKey && !e.getModifierState('AltGraph'))) return;
+  if (e.key.length===1){ e.preventDefault(); if (tgt!==hid) focusInput(); handleChar(e.key, e.code); return; }
+  if (e.key==='Shift') flashKey(e.code);
+});
+hid.addEventListener('input', () => { // mobile / IME fallback
+  const v = hid.value;
+  if (v.length < SENT.length) backspace(false);
+  else for (const ch of v.slice(SENT.length)) handleChar(ch);
+  hid.value = SENT;
+});
+document.addEventListener('mousemove', () => { if (document.body.classList.contains('typing')) document.body.classList.remove('typing'); });
+let rz; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(()=>{ if (T && !T.done){ updateCaret(true); } if (!$('#results').hidden) drawResultChart(); if (view==='stats') renderStats(); }, 120); });
+
+/* ---------- boot ---------- */
+buildSwatches();
+applyCfg();
+newTest();
+updateHeaderChips();
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(()=>{ if (T && !T.started){ render(); } });
+})();
+</script>
+</body>
+</html>
